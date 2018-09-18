@@ -33,6 +33,7 @@ void RasterBand::Initialize(Local<Object> target)
 	Nan::SetPrototypeMethod(lcons, "getMaskFlags", getMaskFlags);
 	Nan::SetPrototypeMethod(lcons, "createMaskBand", createMaskBand);
 	Nan::SetPrototypeMethod(lcons, "getMetadata", getMetadata);
+	Nan::SetPrototypeMethod(lcons, "getDataset", getDataset);
 
 	// unimplemented methods
 	//Nan::SetPrototypeMethod(lcons, "buildOverviews", buildOverviews);
@@ -969,6 +970,38 @@ NAN_GETTER(RasterBand::uidGetter)
 	Nan::HandleScope scope;
 	RasterBand *band = Nan::ObjectWrap::Unwrap<RasterBand>(info.This());
 	info.GetReturnValue().Set(Nan::New((int)band->uid));
+}
+
+/**
+ * Return the Dataset associated with the RasterBand.
+ *
+ * @method getDataset
+ * @return {gdal.Dataset}
+ */
+NAN_METHOD(RasterBand::getDataset)
+{
+	Nan::HandleScope scope;
+
+	RasterBand *band = Nan::ObjectWrap::Unwrap<RasterBand>(info.This());
+	if (!band->isAlive()) {
+		Nan::ThrowError("RasterBand object has already been destroyed");
+		return;
+	}
+	GDALDataset *ds_raw = band->get()->GetDataset();
+	if (!ds_raw) {
+		Nan::ThrowError("Error getting dataset");
+		return;
+	}
+	//LOG("ds_raw %p",ds_raw);
+	
+	Local<Value> ds;
+	if (Dataset::dataset_cache.has(ds_raw)) {
+		ds = Dataset::dataset_cache.get(ds_raw);
+	} else {
+		ds = Dataset::New(ds_raw);
+	}
+	
+	info.GetReturnValue().Set(ds);
 }
 
 } // namespace node_gdal

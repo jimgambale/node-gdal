@@ -38,6 +38,7 @@ public:
 	static NAN_METHOD(getMaskFlags);
 	static NAN_METHOD(createMaskBand);
 	static NAN_METHOD(getMetadata);
+	static NAN_METHOD(getDataset);
 
 	// unimplemented methods
 	//static NAN_METHOD(getColorTable);
