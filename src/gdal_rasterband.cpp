@@ -998,7 +998,7 @@ NAN_METHOD(RasterBand::getDataset)
 	if (Dataset::dataset_cache.has(ds_raw)) {
 		ds = Dataset::dataset_cache.get(ds_raw);
 	} else {
-		ds = Dataset::New(ds_raw);
+		ds = Dataset::NewUnmanaged(ds_raw);
 	}
 	
 	info.GetReturnValue().Set(ds);

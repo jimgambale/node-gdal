@@ -33,6 +33,7 @@ public:
 	static void Initialize(Local<Object> target);
 	static NAN_METHOD(New);
 	static Local<Value> New(GDALDataset *ds);
+	static Local<Value> NewUnmanaged(GDALDataset *ds);
 	static NAN_METHOD(toString);
 	static NAN_METHOD(flush);
 	static NAN_METHOD(getMetadata);

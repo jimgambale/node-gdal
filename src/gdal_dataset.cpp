@@ -182,6 +182,28 @@ Local<Value> Dataset::New(GDALDataset *raw)
 	return scope.Escape(obj);
 }
 
+Local<Value> Dataset::NewUnmanaged(GDALDataset *raw)
+{
+	Nan::EscapableHandleScope scope;
+
+	if (!raw) {
+		return scope.Escape(Nan::Null());
+	}
+	if (dataset_cache.has(raw)) {
+		return scope.Escape(dataset_cache.get(raw));
+	}
+
+	Dataset *wrapped = new Dataset(raw);
+
+	Local<Value> ext = Nan::New<External>(wrapped);
+	Local<Object> obj = Nan::NewInstance(Nan::New(Dataset::constructor)->GetFunction(), 1, &ext).ToLocalChecked();
+
+	dataset_cache.add(raw, obj);
+	//wrapped->uid = ptr_manager.add(raw);
+
+	return scope.Escape(obj);
+}
+
 #if GDAL_VERSION_MAJOR < 2
 Local<Value> Dataset::New(OGRDataSource *raw)
 {
