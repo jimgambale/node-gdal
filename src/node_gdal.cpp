@@ -226,6 +226,8 @@ namespace node_gdal {
 			Nan::SetMethod(target, "decToDMS", decToDMS);
 			Nan::SetMethod(target, "_triggerCPLError", ThrowDummyCPLError); // for tests
 			Nan::SetMethod(target, "_isAlive", isAlive); // for tests
+			Nan::SetMethod(target, "invGeoTransform", invGeoTransform);
+			Nan::SetMethod(target, "applyGeoTransform", applyGeoTransform);
 
 			Warper::Initialize(target);
 			Algorithms::Initialize(target);

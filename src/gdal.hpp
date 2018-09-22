@@ -142,6 +142,120 @@ namespace node_gdal {
 
 		info.GetReturnValue().Set(SafeString::New(GDALDecToDMS(angle, axis.c_str(), precision)));
 	}
+	
+	/**
+	 * Invert Geotransform.
+ 	 *
+ 	 * This function will invert a standard 3x2 set of GeoTransform coefficients.
+ 	 * This converts the equation from being pixel to geo to being geo to pixel.
+	 *
+	 * @for gdal
+	 * @static
+	 * @method invGeoTransform
+	 * @param {Array} gtIn Input geotransform (six doubles - unaltered)
+	 * @param {Array} gtOut Output geotransform (six doubles - updated)
+	 * @return {Integer} Inverted geotransform
+	 */
+	static NAN_METHOD(invGeoTransform){
+		Nan::HandleScope scope;
+		
+		int i, stat;
+		double dfgtIn[6];
+		double dfgtOut[6];
+		Local<Array> gtIn;
+		Local<Array> gtOut;
+		
+		NODE_ARG_ARRAY(0, "gtIn", gtIn);
+		NODE_ARG_ARRAY(1, "gtOut", gtOut);
+		
+		int n_num = gtIn->Length();
+		
+		if(n_num != 6) {
+			Nan::ThrowError("Input geotransform array length must equal 6");
+			return;
+		}
+		for(i = 0; i<n_num; i++){
+			Local<Value> val = gtIn->Get(i);
+			if(!val->IsNumber()) {
+				Nan::ThrowError("geotransform array must only contain numbers");
+				return;
+			}
+			dfgtIn[i] = val->NumberValue();
+		}
+		
+		stat = GDALInvGeoTransform(dfgtIn,dfgtOut);
+		
+		gtOut->Set(0, Nan::New<Number>(dfgtOut[0]));
+		gtOut->Set(1, Nan::New<Number>(dfgtOut[1]));
+		gtOut->Set(2, Nan::New<Number>(dfgtOut[2]));
+		gtOut->Set(3, Nan::New<Number>(dfgtOut[3]));
+		gtOut->Set(4, Nan::New<Number>(dfgtOut[4]));
+		gtOut->Set(5, Nan::New<Number>(dfgtOut[5]));
+	
+		info.GetReturnValue().Set(Nan::New<Integer>(stat));
+	}
+	
+	/**
+	 * Apply GeoTransform to coordinate.
+ 	 *
+	 * @for gdal
+	 * @static
+	 * @method applyGeoTransform
+	 * @param {Array} gtIn Input geotransform (six doubles - unaltered)
+	 * @param {Number} x
+ 	 * @param {Number} y
+ 	 * @return {Object} A regular object containing `x`, `y` properties.
+	 */
+	static NAN_METHOD(applyGeoTransform){
+		Nan::HandleScope scope;
+		
+		int i ;
+		double dfgtIn[6];
+		double x, y = 0;
+		double xout,yout;
+		Local<Array> gtIn;
+		
+		NODE_ARG_ARRAY(0, "gtIn", gtIn);
+		
+		int n_num = gtIn->Length();
+		
+		if(n_num != 6) {
+			Nan::ThrowError("Input geotransform array length must equal 6");
+			return;
+		}
+		for(i = 0; i<n_num; i++){
+			Local<Value> val = gtIn->Get(i);
+			if(!val->IsNumber()) {
+				Nan::ThrowError("geotransform array must only contain numbers");
+				return;
+			}
+			dfgtIn[i] = val->NumberValue();
+		}
+	
+		if (info.Length() == 2 && info[1]->IsObject()) {
+			Local<Object> obj = info[1].As<Object>();
+			Local<Value> arg_x = obj->Get(Nan::New("x").ToLocalChecked());
+			Local<Value> arg_y = obj->Get(Nan::New("y").ToLocalChecked());
+			if (!arg_x->IsNumber() || !arg_y->IsNumber()) {
+				Nan::ThrowError("point must contain numerical properties x and y");
+				return;
+			}
+			x = static_cast<double>(arg_x->NumberValue());
+			y = static_cast<double>(arg_y->NumberValue());
+		} else {
+			NODE_ARG_DOUBLE(1, "x", x);
+			NODE_ARG_DOUBLE(2, "y", y);
+		}
+		
+		GDALApplyGeoTransform(dfgtIn,x,y,&xout,&yout);
+		
+		Local<Object> result = Nan::New<Object>();
+		result->Set(Nan::New("x").ToLocalChecked(), Nan::New<Number>(xout));
+		result->Set(Nan::New("y").ToLocalChecked(), Nan::New<Number>(yout));
+	
+		info.GetReturnValue().Set(result);
+		
+	}
 }
 
 #endif
