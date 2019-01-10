@@ -1,5 +1,6 @@
 .lock-wscript
 build/
+package-lock.json
 find.exe
 node.exe
 msys-1.0.dll
