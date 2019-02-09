@@ -1,6 +1,6 @@
 {
   "name": "gdal",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Bindings to GDAL (Geospatial Data Abstraction Library)",
   "license": "Apache-2.0",
   "url": "http://github.com/naturalatlas/node-gdal",
@@ -23,13 +23,13 @@
   "binary": {
     "module_name": "gdal",
     "module_path": "./lib/binding/{node_abi}-{platform}-{arch}",
-    "remote_path": "./{module_name}/v{version}/{toolset}/",
-    "host": "https://mapbox-node-binary.s3.amazonaws.com",
-    "package_name": "{node_abi}-{platform}-{arch}.tar.gz"
+    "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
+    "host": "https://github.com/jimgambale/node-gdal/releases/download/",
+    "remote_path": "{version}"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/naturalatlas/node-gdal.git"
+    "url": "https://github.com/jimgambale/node-gdal.git"
   },
   "author": {
     "name": "Brandon Reavis",
@@ -41,17 +41,21 @@
     "testRasterIO": "mocha test/dataset_rasterio.test.js -R tap --timeout 600000 --no-colors -gc --require ./test/_common.js",
     "test-syntax": "eslint lib test --fix",
     "install": "node-pre-gyp install --shared_gdal --fallback-to-build",
-    "rebuild": "node-pre-gyp install --build-from-source --shared_gdal --update-binary",
+    "rebuild": "node-pre-gyp install --build-from-source --shared_gdal",
+    "package": "node-pre-gyp package",
+    "github-publish": "node-pre-gyp-github publish",
     "postpublish": "npm run publish-yuidoc",
     "yuidoc": "yuidoc --extension .js,.cpp,.hpp",
     "publish-yuidoc": "npm run yuidoc && node ./scripts/publish-docs.js"
   },
   "dependencies": {
     "nan": "~2.10.0",
-    "node-pre-gyp": "^0.11.0"
+    "node-pre-gyp": "^0.11.0",
+    "node-pre-gyp-github": "^1.4.3"
   },
   "bundledDependencies": [
-    "node-pre-gyp"
+    "node-pre-gyp",
+    "node-pre-gyp-github"
   ],
   "devDependencies": {
     "aws-sdk": "~2.299.0",

@@ -19,6 +19,7 @@ test/data/**/*.gz.*
 node_modules
 /.project
 .DS_Store
+lib/binding/
 deplibs
 deps/libgdal/gdal.tar.gz
 deps/libgeos/geos.tar.bz2
